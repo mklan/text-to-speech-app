@@ -117,7 +117,45 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"index.ts":[function(require,module,exports) {
+})({"logger.ts":[function(require,module,exports) {
+"use strict";
+
+var __spreadArrays = this && this.__spreadArrays || function () {
+  for (var s = 0, i = 0, il = arguments.length; i < il; i++) {
+    s += arguments[i].length;
+  }
+
+  for (var r = Array(s), k = 0, i = 0; i < il; i++) {
+    for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++) {
+      r[k] = a[j];
+    }
+  }
+
+  return r;
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Logger = void 0;
+
+exports.Logger = function (_a) {
+  var logLevel = _a.logLevel;
+  return {
+    debug: function debug(context) {
+      var msg = [];
+
+      for (var _i = 1; _i < arguments.length; _i++) {
+        msg[_i - 1] = arguments[_i];
+      }
+
+      if (logLevel.includes("debug")) console.log.apply(console, __spreadArrays(["[" + context + "]"], msg));
+    }
+  };
+};
+},{}],"index.ts":[function(require,module,exports) {
+"use strict";
+
 var __assign = this && this.__assign || function () {
   __assign = Object.assign || function (t) {
     for (var s, i = 1, n = arguments.length; i < n; i++) {
@@ -134,7 +172,27 @@ var __assign = this && this.__assign || function () {
   return __assign.apply(this, arguments);
 };
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var logger_1 = require("./logger");
+
 var synth = window.speechSynthesis;
+
+var getLogLevel = function getLogLevel() {
+  var debugMode = localStorage.getItem("debug");
+
+  if (debugMode || "development" === "development") {
+    return ["debug"];
+  }
+
+  return [];
+};
+
+var logger = logger_1.Logger({
+  logLevel: getLogLevel()
+});
 
 var State = function State(initalState) {
   if (initalState === void 0) {
@@ -157,7 +215,7 @@ var State = function State(initalState) {
   var state = State();
 
   var handleVoiceSelect = function handleVoiceSelect(voice) {
-    console.log("voice selected", voice);
+    logger.debug("voice selected", voice);
     state.set({
       voice: voice
     });
@@ -171,23 +229,27 @@ var State = function State(initalState) {
     speak(voice, textEl.value);
   };
 
-  var handleInitButtonClick = function handleInitButtonClick() {
-    renderVoiceOptions({
-      onSelect: handleVoiceSelect
-    });
+  var handleError = function handleError(err) {
+    renderErrorMessage(err.message);
+    renderErrorMessage("try this app in chrome");
   };
 
   document.getElementById("speak-btn").onclick = function () {
     return handleSpeakButtonClick();
   };
 
-  document.getElementById("init-btn").onclick = function () {
-    return handleInitButtonClick();
-  };
+  setTimeout(function () {
+    logger.debug("voice options", "render start");
+    renderVoiceOptions({
+      onSelect: handleVoiceSelect,
+      onError: handleError,
+      initial: 0
+    });
+  }, 10);
 })();
 
 function speak(voice, text) {
-  console.log("speak", {
+  logger.debug("speak", {
     text: text,
     voice: voice
   });
@@ -198,8 +260,17 @@ function speak(voice, text) {
 }
 
 function renderVoiceOptions(_a) {
-  var onSelect = _a.onSelect;
+  var onSelect = _a.onSelect,
+      onError = _a.onError,
+      initial = _a.initial;
   var voices = synth.getVoices();
+
+  if (!voices.length) {
+    return onError({
+      message: "no voices available"
+    });
+  }
+
   var options = voices.map(function (voice, i) {
     return {
       text: voice.name,
@@ -212,6 +283,11 @@ function renderVoiceOptions(_a) {
   selectEl.onchange = function (e) {
     onSelect(voices[e.target["value"]]);
   };
+
+  if (initial !== undefined) {
+    logger.debug("initial voice", voices[initial]);
+    onSelect(voices[initial]);
+  }
 }
 
 function setSelectOptions(selectEl, options) {
@@ -222,7 +298,11 @@ function setSelectOptions(selectEl, options) {
     selectEl.appendChild(optionEl);
   });
 }
-},{}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+
+function renderErrorMessage(message) {
+  alert(message);
+}
+},{"./logger":"logger.ts"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -250,7 +330,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "34715" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "38881" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
