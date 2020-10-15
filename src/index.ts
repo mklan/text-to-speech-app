@@ -1,4 +1,15 @@
+import { Logger } from "./logger";
 const synth = window.speechSynthesis;
+
+const getLogLevel = () => {
+  const debugMode = localStorage.getItem("debug");
+  if (debugMode || process.env.NODE_ENV === "development") {
+    return ["debug"];
+  }
+  return [];
+};
+
+const logger = Logger({ logLevel: getLogLevel() });
 
 const State = (initalState = {}) => {
   let state = initalState;
@@ -15,7 +26,7 @@ const State = (initalState = {}) => {
   const state = State();
 
   const handleVoiceSelect = (voice) => {
-    console.log("voice selected", voice);
+    logger.debug("voice selected", voice);
     state.set({ voice });
   };
 
@@ -26,24 +37,37 @@ const State = (initalState = {}) => {
     if (!voice) return;
     speak(voice, textEl.value);
   };
-  const handleInitButtonClick = () => {
-    renderVoiceOptions({ onSelect: handleVoiceSelect, initial: 0 });
+
+  const handleError = (err) => {
+    renderErrorMessage(err.message);
+    renderErrorMessage("try this app in chrome");
   };
 
   document.getElementById("speak-btn").onclick = () => handleSpeakButtonClick();
-  document.getElementById("init-btn").onclick = () => handleInitButtonClick();
+
+  setTimeout(() => {
+    logger.debug("voice options", "render start");
+    renderVoiceOptions({
+      onSelect: handleVoiceSelect,
+      onError: handleError,
+      initial: 0,
+    });
+  }, 10);
 })();
 
 function speak(voice, text) {
-  console.log("speak", { text, voice });
+  logger.debug("speak", { text, voice });
   synth.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.voice = voice;
   synth.speak(utterance);
 }
 
-function renderVoiceOptions({ onSelect, initial }) {
+function renderVoiceOptions({ onSelect, onError, initial }) {
   const voices = synth.getVoices();
+  if (!voices.length) {
+    return onError({ message: "no voices available" });
+  }
   const options = voices.map((voice, i) => ({ text: voice.name, value: i }));
 
   const selectEl = document.getElementById("voices");
@@ -54,7 +78,8 @@ function renderVoiceOptions({ onSelect, initial }) {
     onSelect(voices[e.target["value"]]);
   };
 
-  if (initial) {
+  if (initial !== undefined) {
+    logger.debug("initial voice", voices[initial]);
     onSelect(voices[initial]);
   }
 }
@@ -66,4 +91,8 @@ function setSelectOptions(selectEl, options) {
     optionEl.text = option.text;
     selectEl.appendChild(optionEl);
   });
+}
+
+function renderErrorMessage(message) {
+  alert(message);
 }
