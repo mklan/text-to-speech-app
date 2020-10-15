@@ -153,7 +153,7 @@ exports.Logger = function (_a) {
     }
   };
 };
-},{}],"index.ts":[function(require,module,exports) {
+},{}],"state.ts":[function(require,module,exports) {
 "use strict";
 
 var __assign = this && this.__assign || function () {
@@ -175,26 +175,9 @@ var __assign = this && this.__assign || function () {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.State = void 0;
 
-var logger_1 = require("./logger");
-
-var synth = window.speechSynthesis;
-
-var getLogLevel = function getLogLevel() {
-  var debugMode = localStorage.getItem("debug");
-
-  if (debugMode || "development" === "development") {
-    return ["debug"];
-  }
-
-  return [];
-};
-
-var logger = logger_1.Logger({
-  logLevel: getLogLevel()
-});
-
-var State = function State(initalState) {
+exports.State = function (initalState) {
   if (initalState === void 0) {
     initalState = {};
   }
@@ -210,19 +193,45 @@ var State = function State(initalState) {
     }
   };
 };
+},{}],"index.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var logger_1 = require("./logger");
+
+var state_1 = require("./state");
+
+var synth = window.speechSynthesis;
+
+var getLogLevel = function getLogLevel() {
+  var debugMode = localStorage.getItem('debug');
+
+  if (debugMode || "development" === 'development') {
+    return ['debug'];
+  }
+
+  return [];
+};
+
+var logger = logger_1.Logger({
+  logLevel: getLogLevel()
+});
 
 (function () {
-  var state = State();
+  var state = state_1.State();
 
   var handleVoiceSelect = function handleVoiceSelect(voice) {
-    logger.debug("voice selected", voice);
+    logger.debug('voice selected', voice);
     state.set({
       voice: voice
     });
   };
 
   var handleSpeakButtonClick = function handleSpeakButtonClick() {
-    var textEl = document.getElementById("text");
+    var textEl = document.getElementById('text');
     if (!textEl.value) return;
     var voice = state.get().voice;
     if (!voice) return;
@@ -231,15 +240,15 @@ var State = function State(initalState) {
 
   var handleError = function handleError(err) {
     renderErrorMessage(err.message);
-    renderErrorMessage("try this app in chrome");
+    renderErrorMessage('try this app in chrome');
   };
 
-  document.getElementById("speak-btn").onclick = function () {
+  document.getElementById('speak-btn').onclick = function () {
     return handleSpeakButtonClick();
   };
 
   setTimeout(function () {
-    logger.debug("voice options", "render start");
+    logger.debug('voice options', 'render start');
     renderVoiceOptions({
       onSelect: handleVoiceSelect,
       onError: handleError,
@@ -249,7 +258,7 @@ var State = function State(initalState) {
 })();
 
 function speak(voice, text) {
-  logger.debug("speak", {
+  logger.debug('speak', {
     text: text,
     voice: voice
   });
@@ -267,7 +276,7 @@ function renderVoiceOptions(_a) {
 
   if (!voices.length) {
     return onError({
-      message: "no voices available"
+      message: 'no voices available'
     });
   }
 
@@ -277,22 +286,22 @@ function renderVoiceOptions(_a) {
       value: i
     };
   });
-  var selectEl = document.getElementById("voices");
+  var selectEl = document.getElementById('voices');
   setSelectOptions(selectEl, options);
 
   selectEl.onchange = function (e) {
-    onSelect(voices[e.target["value"]]);
+    onSelect(voices[e.target['value']]);
   };
 
   if (initial !== undefined) {
-    logger.debug("initial voice", voices[initial]);
+    logger.debug('initial voice', voices[initial]);
     onSelect(voices[initial]);
   }
 }
 
 function setSelectOptions(selectEl, options) {
   options.forEach(function (option) {
-    var optionEl = document.createElement("option");
+    var optionEl = document.createElement('option');
     optionEl.value = option.value;
     optionEl.text = option.text;
     selectEl.appendChild(optionEl);
@@ -302,7 +311,7 @@ function setSelectOptions(selectEl, options) {
 function renderErrorMessage(message) {
   alert(message);
 }
-},{"./logger":"logger.ts"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./logger":"logger.ts","./state":"state.ts"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -330,7 +339,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "38881" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "41043" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
