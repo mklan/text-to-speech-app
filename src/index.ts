@@ -1,4 +1,5 @@
 import { Logger } from './logger';
+import { State } from './state';
 const synth = window.speechSynthesis;
 
 const getLogLevel = () => {
@@ -10,17 +11,6 @@ const getLogLevel = () => {
 };
 
 const logger = Logger({ logLevel: getLogLevel() });
-
-const State = (initalState = {}) => {
-  let state = initalState;
-  return {
-    set: (update) => {
-      state = { ...state, ...update };
-      return state;
-    },
-    get: (): any => state,
-  };
-};
 
 (() => {
   const state = State();
