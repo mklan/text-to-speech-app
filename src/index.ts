@@ -1,5 +1,5 @@
 import { Logger } from './logger';
-import { State } from './state';
+import { Stated } from './state';
 const synth = window.speechSynthesis;
 
 const getLogLevel = () => {
