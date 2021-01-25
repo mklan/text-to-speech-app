@@ -3,8 +3,9 @@ import { State } from './state';
 const synth = window.speechSynthesis;
 
 const getLogLevel = () => {
-  const debugMode = localStorage.getItem('debug');
-  if (debugMode || process.env.NODE_ENV === 'development') {
+  const debugMode =
+    process.env.NODE_ENV === 'development' || localStorage.getItem('debug');
+  if (debugMode) {
     return ['debug'];
   }
   return [];
