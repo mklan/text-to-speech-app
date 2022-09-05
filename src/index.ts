@@ -1,4 +1,5 @@
 import { Logger } from './logger';
+import { fetchPosts } from './services/reddit';
 import { State } from './state';
 
 const getLogLevel = () => {
@@ -11,7 +12,22 @@ const getLogLevel = () => {
 
 const logger = Logger({ logLevel: getLogLevel() });
 
-(() => {
+(async () => {
+  const textEl = document.getElementById('text') as HTMLInputElement;
+
+  textEl.value = 'loading reddit post...';
+
+  const posts = await fetchPosts({
+    subreddit: 'BestofRedditorUpdates',
+    filter: 'top',
+    time: 'day',
+    limit: 1,
+  });
+
+  if (posts.length) {
+    textEl.value = posts[0].data.selftext;
+  }
+
   const synth = window.speechSynthesis;
   const state = State();
 
@@ -21,11 +37,18 @@ const logger = Logger({ logLevel: getLogLevel() });
   };
 
   const handleSpeakButtonClick = () => {
-    const textEl = document.getElementById('text') as any;
     if (!textEl.value) return;
     const { voice } = state.get();
     if (!voice) return;
     speak(voice, textEl.value);
+  };
+
+  const handlePauseButtonClick = () => {
+    synth.pause();
+  };
+
+  const handleResumeButtonClick = () => {
+    synth.resume();
   };
 
   const handleReloadButtonClick = () => {
@@ -39,10 +62,12 @@ const logger = Logger({ logLevel: getLogLevel() });
 
   const handleError = (err) => {
     renderErrorMessage(err.message);
-    renderErrorMessage('try this app in chrome');
   };
 
   document.getElementById('speak-btn').onclick = () => handleSpeakButtonClick();
+  document.getElementById('pause-btn').onclick = () => handlePauseButtonClick();
+  document.getElementById('resume-btn').onclick = () =>
+    handleResumeButtonClick();
   document.getElementById('reload-btn').onclick = () =>
     handleReloadButtonClick();
 
@@ -68,19 +93,25 @@ const logger = Logger({ logLevel: getLogLevel() });
     if (!voices.length) {
       return onError({ message: 'no voices available' });
     }
-    const options = voices.map((voice, i) => ({ text: voice.name, value: i }));
+
+    const englishVoices = voices.filter((voice) => voice.lang.startsWith('en'));
+    console.log(englishVoices);
+    const options = englishVoices.map((voice) => ({
+      text: voice.name,
+      value: voice.name,
+    }));
 
     const selectEl = document.getElementById('voices');
 
     setSelectOptions(selectEl, options);
 
     selectEl.onchange = (e) => {
-      onSelect(voices[e.target['value']]);
+      onSelect(englishVoices.find((voice) => voice.name === e.target['value']));
     };
 
     if (initial !== undefined) {
-      logger.debug('initial voice', voices[initial]);
-      onSelect(voices[initial]);
+      logger.debug('initial voice', englishVoices[initial]);
+      onSelect(englishVoices[initial]);
     }
   }
 
