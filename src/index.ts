@@ -1,6 +1,7 @@
 import { Logger } from './logger';
 import { fetchPosts } from './services/reddit';
 import { State } from './state';
+import { removeLinks } from './utils/removeLinks';
 
 const getLogLevel = () => {
   const debugMode = localStorage.getItem('debug');
@@ -25,7 +26,7 @@ const logger = Logger({ logLevel: getLogLevel() });
   });
 
   if (posts.length) {
-    textEl.value = posts[0].data.selftext;
+    textEl.value = removeLinks(posts[0].data.selftext);
   }
 
   const synth = window.speechSynthesis;
