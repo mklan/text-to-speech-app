@@ -2804,6 +2804,11 @@ fastq@^1.6.0:
   dependencies:
     reusify "^1.0.4"
 
+fetch-jsonp@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/fetch-jsonp/-/fetch-jsonp-1.2.2.tgz#c98923191390119a8eae401a9cbe75845230e000"
+  integrity sha512-8rQTSU3G2k9VwpsTLpuUQ8Ix7Yv1bZDGcOUGr4me0F7pxyKxMH9PSBXF6tPMx3fca9DICYwztDa1KgOTeAdTWg==
+
 figures@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/figures/-/figures-3.2.0.tgz#625c18bd293c604dc4a8ddb2febf0c88341746af"

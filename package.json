@@ -25,7 +25,9 @@
     "prettier": "^2.1.2",
     "typescript": "^3.9.7"
   },
-  "dependencies": {},
+  "dependencies": {
+    "fetch-jsonp": "^1.2.2"
+  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"

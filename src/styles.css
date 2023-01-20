@@ -1,0 +1,8 @@
+html, body {
+    font-family: sans-serif;
+}
+
+#text {
+    width: 500px;
+    height: 500px;
+}
